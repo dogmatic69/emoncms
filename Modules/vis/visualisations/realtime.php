@@ -28,9 +28,11 @@
         <!--
          // Time window buttons
         -->
-        <?php if (!$embed) { ?>
-        <h2>Realtime data: <?php echo $feedidname; ?></h2>
-        <?php } ?>
+        <?php 
+            if (!$embed) { 
+                echo sprintf('<h2>Realtime data: %s</h2>', !empty($feedidname) ? $feedidname : null);
+            }
+        ?>
 
         <div id="graph_bound" style="height:400px; width:100%; position:relative; ">
             <div id="graph"></div>
@@ -51,8 +53,8 @@
             //----------------------------------------------------------------------------------------
             // These start time and end time set the initial graph view window
             //----------------------------------------------------------------------------------------
-            var timeWindow = (3600000*0.1);        //Initial time window
-            var start = ((new Date()).getTime())-timeWindow;   //Get start time
+            var timeWindow = (3600000 * 0.1);        //Initial time window
+            var start = (new Date()).getTime() - timeWindow;   //Get start time
             var end = (new Date()).getTime();        //Get end time
 
             var graph_bound = $('#graph_bound'),

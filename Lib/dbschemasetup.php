@@ -15,6 +15,10 @@
 // no direct access
 defined('EMONCMS_EXEC') or die('Restricted access');
 
+if (!db_check($mysqli,$database)) {
+    db_schema_setup($mysqli,load_db_schema(),true);
+}
+
 function db_schema_setup($mysqli, $schema, $apply)
 {
     $operations = array();

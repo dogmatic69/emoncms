@@ -34,7 +34,7 @@
         echo '<div class="alert alert-block"><p><b>Todo:</b> - these changes need to be applied</p><br>'.$out.'</div>';
 ?>
 
-<a href="<?php echo $path; ?>admin/db?apply=true" class="btn btn-info"><?php echo _('Apply changes'); ?></a>
+<a href="<?php echo $path; ?>admin/db&apply=true" class="btn btn-info"><?php echo _('Apply changes'); ?></a>
 
 <?php } elseif ($out && $applychanges) {
     echo '<div class="alert alert-success"><p><b>Success:</b> - the following changes have been applied</b></p><br>'.$out.'</div>';
