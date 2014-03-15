@@ -14,23 +14,20 @@
 // no direct access
 defined('EMONCMS_EXEC') or die('Restricted access');
 
-function user_controller()
-{
+function user_controller() {
     global $user, $path, $session, $route ,$allowusersregister;
 
     $result = false;
 
     // Load html,css,js pages to the client
-    if ($route->format == 'html')
-    {
+    if ($route->format == 'html') {
         if ($route->action == 'login' && !$session['read']) $result = view("Modules/user/login_block.php", array());
         if ($route->action == 'view' && $session['write']) $result = view("Modules/user/profile/profile.php", array());
         if ($route->action == 'logout' && $session['read']) {$user->logout(); header('Location: '.$path);}
     }
 
     // JSON API
-    if ($route->format == 'json')
-    {
+    if ($route->format == 'json') {
         // Core session
         if ($route->action == 'login' && !$session['read']) $result = $user->login(post('username'),post('password'),post('rememberme'));
         if ($route->action == 'register' && $allowusersregister) $result = $user->register(post('username'),post('password'),post('email'));

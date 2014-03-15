@@ -48,12 +48,11 @@ class Rememberme {
     private $salt = "";
 
     const TRIPLET_FOUND     =  1,
-                TRIPLET_NOT_FOUND =  0,
-                TRIPLET_INVALID   = -1;
+        TRIPLET_NOT_FOUND =  0,
+        TRIPLET_INVALID   = -1;
 
 
-    public function __construct($mysqli)
-    {
+    public function __construct($mysqli) {
             $this->mysqli = $mysqli;
     }
 
@@ -67,6 +66,7 @@ class Rememberme {
         if(!$cookieValues) {
             return false;
         }
+
         $loginResult = false;
         switch($this->findTriplet($cookieValues[0], $cookieValues[1].$this->salt, $cookieValues[2].$this->salt)) {
             case self::TRIPLET_FOUND:
@@ -83,6 +83,7 @@ class Rememberme {
 
                 $loginResult = $cookieValues[0];
                 break;
+
             case self::TRIPLET_INVALID:
                 setcookie($this->cookieName,"",time() - $this->expireTime,$this->path,"",false,true);
                 $this->lastLoginTokenWasInvalid = true;
@@ -103,8 +104,7 @@ class Rememberme {
         return $state == self::TRIPLET_FOUND;
     }
 
-    public function createCookie($userid)
-    {
+    public function createCookie($userid) {
         $newToken = $this->createToken();
         $newPersistentToken = $this->createToken();
         $expire = time() + $this->expireTime;
@@ -119,21 +119,23 @@ class Rememberme {
      * @param boolean $clearFromStorage
      * @return boolean
      */
-    public function clearCookie($clearFromStorage=true) {
-        if(empty($_COOKIE[$this->cookieName]))
+    public function clearCookie($clearFromStorage = true) {
+        if (empty($_COOKIE[$this->cookieName])) {
             return false;
+        }
         $cookieValues = explode("|", $_COOKIE[$this->cookieName], 3);
 
         setcookie($this->cookieName,"",time() - $this->expireTime,$this->path,"",false,true);
         unset($_COOKIE[$this->cookieName]);
 
-        if(!$clearFromStorage) {
-                return true;
+        if (!$clearFromStorage) {
+            return true;
         }
 
-        if(count($cookieValues) < 3) {
+        if (count($cookieValues) < 3) {
             return false;
         }
+
         $this->cleanTriplet($cookieValues[0], $cookieValues[2].$this->salt);
         return true;
     }
@@ -152,15 +154,15 @@ class Rememberme {
      * The token is pseudo-random. If you need better security, read from /dev/urandom
      */
     private function createToken() {
-            return md5(uniqid(mt_rand(), true));
+        return md5(uniqid(mt_rand(), true));
     }
 
-    private function getCookieValues()
-    {
+    private function getCookieValues() {
         // Cookie was not sent with incoming request
         if(empty($_COOKIE[$this->cookieName])) {
             return array();
         }
+
         $cookieValues = explode("|", $_COOKIE[$this->cookieName], 3);
 
         if(count($cookieValues) < 3) {
@@ -184,28 +186,25 @@ class Rememberme {
         if(!$row['token_match']) {
             return self::TRIPLET_NOT_FOUND;
         }
-        elseif ($row['token_match'] == 1) {
+        
+        if ($row['token_match'] == 1) {
             return self::TRIPLET_FOUND;
         }
-        else {
-            return self::TRIPLET_INVALID;
-        }
+
+        return self::TRIPLET_INVALID;
     }
 
-    private function storeTriplet($userid, $token, $persistentToken, $expire=0)
-    {
-            $date = date("Y-m-d H:i:s", $expire);
-            $this->mysqli->query("INSERT INTO rememberme (userid, token, persistentToken, expire) VALUES ('$userid', SHA1('$token'), SHA1('$persistentToken'), '$date')");
+    private function storeTriplet($userid, $token, $persistentToken, $expire = 0) {
+        $date = date("Y-m-d H:i:s", $expire);
+        $this->mysqli->query("INSERT INTO rememberme (userid, token, persistentToken, expire) VALUES ('$userid', SHA1('$token'), SHA1('$persistentToken'), '$date')");
     }
 
-    private function cleanTriplet($userid, $persistentToken)
-    {
-            $this->mysqli->query("DELETE FROM rememberme WHERE userid = '$userid'  AND persistentToken = SHA1('$persistentToken')");
+    private function cleanTriplet($userid, $persistentToken) {
+        $this->mysqli->query("DELETE FROM rememberme WHERE userid = '$userid'  AND persistentToken = SHA1('$persistentToken')");
     }
 
-    private function cleanAllTriplets($userid)
-    {
-            $this->mysqli->query("DELETE FROM rememberme WHERE userid = '$userid'");
+    private function cleanAllTriplets($userid) {
+        $this->mysqli->query("DELETE FROM rememberme WHERE userid = '$userid'");
     }
 
 }

@@ -12,7 +12,9 @@ http://openenergymonitor.org
 
 global $session,$path;
 
-if (!$dashboard['height']) $dashboard['height'] = 400;
+if (!$dashboard['height']) {
+    $dashboard['height'] = 400;
+}
 ?>
     <script type="text/javascript" src="<?php echo $path; ?>Modules/dashboard/dashboard_langjs.php"></script>
 
@@ -24,7 +26,7 @@ if (!$dashboard['height']) $dashboard['height'] = 400;
 
     <script type="text/javascript" src="<?php echo $path; ?>Modules/feed/feed.js"></script>
 
-    <?php require_once "Modules/dashboard/Views/loadwidgets.php"; ?>
+    <?php require_once 'Modules/dashboard/Views/loadwidgets.php'; ?>
 
 <div id="dashboardpage">
 
@@ -57,40 +59,39 @@ if (!$dashboard['height']) $dashboard['height'] = 400;
 
 <script type="text/javascript" src="<?php echo $path; ?>Modules/dashboard/Views/js/designer.js"></script>
 <script type="application/javascript">
-
-    var dashid = <?php echo $dashboard['id']; ?>;
-    var path = "<?php echo $path; ?>";
-    var apikey = "";
-    var feedlist = feed.list();
-    var userid = <?php echo $session['userid']; ?>;
-
     $("#testo").hide();
 
-    var widget = <?php echo json_encode($widgets); ?>;
+    var dashid = <?php echo $dashboard['id']; ?>,
+        path = "<?php echo $path; ?>",
+        apikey = "",
+        feedlist = feed.list(),
+        userid = <?php echo $session['userid']; ?>,
+        widget = <?php echo json_encode($widgets); ?>;
 
-    for (z in widget)
-    {
-        var fname = widget[z]+"_widgetlist";
-        var fn = window[fname];
+
+    for (z in widget) {
+        var fn = window[widget[z] + '_widgetlist'];
         $.extend(widgets,fn());
     }
 
-    var redraw = 0;
-    var reloadiframe = 0;
+    var redraw, reloadiframe = 0,
+        grid_size = 20;
 
-    var grid_size = 20;
     $('#can').width($('#dashboardpage').width());
 
     designer.canvas = "#can";
     designer.grid_size = 20;
     designer.widgets = widgets;
-
     designer.init();
-
     show_dashboard();
 
-    setInterval(function() { update(); }, 10000);
-    setInterval(function() { fast_update(); }, 30);
+    setInterval(function() { 
+        update(); 
+    }, 10000);
+
+    setInterval(function() {
+        fast_update();
+    }, 30);
 
 
     $("#save-dashboard").click(function (){
@@ -99,15 +100,17 @@ if (!$dashboard['height']) $dashboard['height'] = 400;
         designer.page_height = 0;
         designer.scan();
         $.ajax({
-            type: "POST",
-            url :  path+"dashboard/setcontent.json",
-            data : "&id="+dashid+'&content='+encodeURIComponent($("#page").html())+'&height='+designer.page_height,
+            type: 'POST',
+            url:  path + 'dashboard/setcontent.json',
+            data: '&id=' + dashid + '&content=' + encodeURIComponent($('#page').html()) + '&height=' + designer.page_height,
             dataType: 'json',
-            success : function(data) { console.log(data); if (data.success==true) $("#save-dashboard").attr('class','btn btn-success').text('<?php echo _("Saved") ?>');
+            success: function(data) {
+                if (data.success == true) {
+                    $('#save-dashboard').attr('class','btn btn-success').text('<?php echo _("Saved") ?>');
+                }
             }
         });
     });
-
 
     $(window).resize(function(){
         designer.draw();

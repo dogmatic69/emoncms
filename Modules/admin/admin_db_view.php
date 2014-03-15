@@ -1,23 +1,23 @@
-<h2><?php echo _('Database setup, update and status check'); ?></h2>
-<p><?php echo _('This page displays the output of the database setup and update process which checks the database requirements of each module installed and enter any new table or fields if required.'); ?></p>
-<p><?php echo _('If all the item statuses below show ok that means your database is setup correctly.'); ?></p>
+<?php
+echo implode('', array(
+	sprintf('<h2>%s</h2>', _('Database setup, update and status check')),
+	sprintf('<p>%s</p>', _('This page displays the output of the database setup and update process which checks the database requirements of each module installed and enter any new table or fields if required.')),
+	sprintf('<p>%s</p>', _('If all the item statuses below show ok that means your database is setup correctly.')),
+));
+?>
 <br>
-
 <table class="table" >
-    <tr><th><?php echo _('Schema item'); ?></th><th><?php echo _('Name'); ?></th><th><?php echo _('Status'); ?></th></tr>
-    <?php $i=0; foreach ($out as $line) { $i++; ?>
-
-    <?php if ($line[0]=='Table') { ?>
-
-    <tr class="d<?php echo ($i & 1); ?>" ><th><?php echo $line[0]; ?></th><th><?php echo $line[1]; ?></th><th><?php echo $line[2]; ?></th></tr>
-
-    <?php } ?>
-
-    <?php if ($line[0]=='field') { ?>
-
-    <tr class="d<?php echo ($i & 1); ?>" ><td><i><?php echo $line[0]; ?></i></td><td><i><?php echo $line[1]; ?></i></td><td><i><?php echo $line[2]; ?></i></td></tr>
-
-    <?php } ?>
-
-    <?php } ?>
+    <?php
+    	echo sprintf('<tr><th>%s</th><th>%s</th><th>%s</th></tr>', _('Schema item'), _('Name'), _('Status'));
+    	$i = 0;
+    	foreach ($out as $line) { 
+    		$i++; 
+    		if ($line[0] == 'Table') { 
+    			echo sprintf('<tr class="d%s"><th>%s</th><th>%s</th><th>%s</th></tr>', $i & 1, $line[0], $line[1], $line[2]);
+    		} 
+    		if ($line[0] == 'field') {
+    			echo sprintf('<tr class="d%s"><td><i>%s</i></td><td><i>%s</i></td><td><i>%s</i></td></tr>', $i & 1, $line[0], $line[1], $line[2]);
+    		}
+    	}
+    ?>
 </table>

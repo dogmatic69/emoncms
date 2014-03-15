@@ -17,28 +17,26 @@
     $menu_right = $menu['right'];
     $menu_dropdown = $menu['dropdown'];
 
-    if ($session['write']) $menu_right[] = array('name'=>"<b>Docs</b>", 'path'=>"site/docs", 'order' => 0 );
-    if (!$session['write']) $menu_right[] = array('name'=>"Log In", 'path'=>"user/login", 'order' => -1 );
+    if ($session['write']) {
+        $menu_right[] = array('name'=>"<b>Docs</b>", 'path'=>"site/docs", 'order' => 0 );
+    } else {
+        $menu_right[] = array('name'=>"Log In", 'path'=>"user/login", 'order' => -1 );
+    }
 ?>
 
 <style>
-    #mainnav li:first-child a { padding-left: 0px; }
+    #mainnav li:first-child a { 
+        padding-left: 0px; 
+    }
 </style>
 
 <ul class="nav">
     <?php
-
-    foreach ($menu_left as $item)
-    {
-        if (isset($item['session'])) {
-            if (isset($session[$item['session']]) && $session[$item['session']]==1) {
+        foreach ($menu_left as $item) {
+            if (empty($item['session']) || (isset($session[$item['session']]) && $session[$item['session']] == 1)) {
                 echo "<li><a href=".$path.$item['path']." >".$item['name']."</a></li>";
             }
-        } else {
-            echo "<li><a href=".$path.$item['path']." >".$item['name']."</a></li>";
         }
-    }
-
     ?>
 
     <?php if (count($menu_dropdown) && $session['read']) { ?>
@@ -57,18 +55,11 @@
 
 <ul class="nav pull-right">
     <?php
-
-    foreach ($menu_right as $item)
-    {
-        if (isset($item['session'])) {
-            if (isset($session[$item['session']]) && $session[$item['session']]==1) {
+        foreach ($menu_right as $item) {
+            if (empty($item['session']) || (isset($session[$item['session']]) && $session[$item['session']] == 1)) {
                 echo "<li><a href=".$path.$item['path']." >".$item['name']."</a></li>";
             }
-        } else {
-            echo "<li><a href=".$path.$item['path']." >".$item['name']."</a></li>";
         }
-    }
-
     ?>
 </ul>
 

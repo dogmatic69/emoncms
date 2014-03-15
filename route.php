@@ -25,7 +25,10 @@ class Route {
 
     public $format = "html";
 
-    public function __construct($q) {
+    public function __construct($q = null) {
+        if ($q === null) {
+            $q = get('q');
+        }
         $this->decode($q);
     }
 

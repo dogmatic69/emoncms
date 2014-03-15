@@ -21,31 +21,32 @@ http://openenergymonitor.org
 
     <script type="text/javascript" src="<?php echo $path; ?>Modules/feed/feed.js"></script>
 
-    <?php require_once "Modules/dashboard/Views/loadwidgets.php"; ?>
+    <?php require_once 'Modules/dashboard/Views/loadwidgets.php'; ?>
 
     <div id="page-container" style="height:<?php echo $dashboard['height']; ?>px; position:relative;">
         <div id="page"><?php echo $dashboard['content']; ?></div>
     </div>
 
 <script type="application/javascript">
-    var dashid = <?php echo $dashboard['id']; ?>;
-    var path = "<?php echo $path; ?>";
-    var widget = <?php echo json_encode($widgets); ?>;
-    var apikey = "<?php echo get('apikey'); ?>";
-    var userid = <?php echo $session['userid']; ?>;
+    var dashid = <?php echo $dashboard['id']; ?>,
+        path = "<?php echo $path; ?>",
+        widget = <?php echo json_encode($widgets); ?>,
+        apikey = "<?php echo get('apikey'); ?>",
+        userid = <?php echo $session['userid']; ?>;
 
-    for (z in widget)
-    {
-        var fname = widget[z]+"_widgetlist";
-        var fn = window[fname];
+    for (z in widget) {
+        var fn = window[widget[z] + '_widgetlist'];
         $.extend(widgets,fn());
     }
 
-    var redraw = 1;
-    var reloadiframe = 0;
+    var redraw = 1,
+        reloadiframe = 0;
 
     show_dashboard();
-    setInterval(function() { update(); }, 10000);
-    setInterval(function() { fast_update(); }, 30);
-
+    setInterval(function() { 
+        update(); 
+    }, 10000);
+    setInterval(function() { 
+        fast_update(); 
+    }, 30);
 </script>

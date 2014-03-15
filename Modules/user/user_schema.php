@@ -1,5 +1,4 @@
 <?php
-
 $schema['users'] = array(
     'id' => array('type' => 'int(11)', 'Null'=>'NO', 'Key'=>'PRI', 'Extra'=>'auto_increment'),
     'username' => array('type' => 'varchar(30)'),

@@ -17,10 +17,10 @@ $ltime = microtime(true);
 define('EMONCMS_EXEC', 1);
 
 // 1) Load settings and core scripts
-require "process_settings.php";
-require "core.php";
-require "route.php";
-require "locale.php";
+require 'process_settings.php';
+require 'core.php';
+require 'route.php';
+require 'locale.php';
 
 $path = get_application_path();
 
@@ -28,36 +28,36 @@ $path = get_application_path();
 $mysqli = @new mysqli($server,$username,$password,$database);
 
 if (!class_exists('Redis')) {
-    echo "Can't connect to redis database, phpredis is not installed, see readme for redis installation";
+    echo 'Can\'t connect to redis database, phpredis is not installed, see readme for redis installation';
     exit;
 }
 
 $redis = new Redis();
-$connected = $redis->connect("127.0.0.1");
+$connected = $redis->connect('127.0.0.1');
 
 if (!$connected) {
-    echo "Can't connect to redis database, it may be that redis-server is not installed or started see readme for redis installation";
+    echo 'Can\'t connect to redis database, it may be that redis-server is not installed or started see readme for redis installation';
     exit;
 }
 
 if ( $mysqli->connect_error ) {
-    echo "Can't connect to database, please verify credentials/configuration in settings.php<br />";
+    echo 'Can\t connect to database, please verify credentials/configuration in settings.php<br />';
     if ( $display_errors ) {
-        echo "Error message: <b>" . $mysqli->connect_error . "</b>";
+        echo sprintf('Error message: <b>%s</b>', $mysqli->connect_error);
     }
     exit;
 }
 
 if (!$mysqli->connect_error && $dbtest==true) {
-    require "Lib/dbschemasetup.php";
+    require 'Lib/dbschemasetup.php';
 }
 
 // 3) User sessions
-require "Modules/user/rememberme_model.php";
+require 'Modules/user/rememberme_model.php';
 $rememberme = new Rememberme($mysqli);
 
-require("Modules/user/user_model.php");
-$user = new User($mysqli,$redis,$rememberme);
+require 'Modules/user/user_model.php';
+$user = new User($mysqli, $redis, $rememberme);
 
 if (get('apikey')) {
     $session = $user->apikey_session(get('apikey'));
@@ -66,11 +66,13 @@ if (get('apikey')) {
 }
 
 // 4) Language
-if (!isset($session['lang'])) $session['lang']='';
+if (!isset($session['lang'])) {
+    $session['lang'] = '';
+}
 set_emoncms_lang($session['lang']);
 
 // 5) Get route and load controller
-$route = new Route(get('q'));
+$route = new Route();
 
 $embed = (int)(bool)get('embed');
 
@@ -123,8 +125,8 @@ if ($route->format == 'json') {
 }
 if ($route->format == 'html') {
     $menu = load_menu();
-    $output['mainmenu'] = view("Theme/menu_view.php", array());
-    echo $embed ? view("Theme/embed.php", $output) : view("Theme/theme.php", $output);
+    $output['mainmenu'] = view('Theme/menu_view.php', array());
+    echo $embed ? view('Theme/embed.php', $output) : view('Theme/theme.php', $output);
 }
 
 $ltime = microtime(true) - $ltime;

@@ -105,9 +105,9 @@
                         <img src="<?php echo $path; ?>Theme/favicon.png" style="width:28px;"/>
                     </button>
                     <div class="nav-collapse collapse">
-                      <?php if (!isset($runmenu)) $runmenu = '';
-                            echo $mainmenu.$runmenu;
-                      ?>
+                        <?php 
+                            echo $mainmenu . (!empty($runmenu) ? $runmenu : '');
+                        ?>
                     </div>
                 </div>
             </div>
@@ -124,7 +124,7 @@
         <?php } ?>
 
         <?php
-          if (!isset($fullwidth)) $fullwidth = false;
+            $fullwidth = isset($fullwidth) ? $fullwidth : false;
           if (!$fullwidth) {
         ?>
 

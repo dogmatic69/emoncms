@@ -17,8 +17,7 @@ defined('EMONCMS_EXEC') or die('Restricted access');
 
     $languages = get_available_languages();
 
-function languagecodetotext()
-{
+function languagecodetotext() {
     _('es_ES');
     _('fr_FR');
 }
@@ -30,7 +29,6 @@ function languagecodetotext()
 <script type="text/javascript" src="<?php echo $path; ?>Lib/listjs/list.js"></script>
 
 <div class="row">
-
     <div class="span4">
      <h3><?php echo _('My account'); ?></h3>
 
@@ -87,8 +85,8 @@ function languagecodetotext()
 
 <script>
 
-    var path = "<?php echo $path; ?>";
-    var lang = <?php echo json_encode($languages); ?>;
+    var path = "<?php echo $path; ?>",
+        lang = <?php echo json_encode($languages); ?>;
 
     list.data = user.get();
 
@@ -109,7 +107,9 @@ function languagecodetotext()
         user.set(list.data);
 
         // refresh the page if the language has been changed.
-        if (list.data.language!=currentlanguage) window.location.href = path+"user/view";
+        if (list.data.language!=currentlanguage) {
+            window.location.href = path + 'user/view';
+        }
     });
 
     //------------------------------------------------------
@@ -128,31 +128,24 @@ function languagecodetotext()
 
         var username = $("#edit-username-form input").val();
 
-        if (username!=list.data.username)
-        {
+        if (username != list.data.username) {
             $.ajax({
                 url: path+"user/changeusername.json",
                 data: "&username="+username,
                 dataType: 'json',
-                success: function(result)
-                {
-                    if (result.success)
-                    {
+                success: function(result) {
+                    if (result.success) {
                         $("#username-view").show();
                         $("#edit-username-form").hide();
                         list.data.username = username;
                         $(".username").html(list.data.username);
                         $("#change-username-error").hide();
-                    }
-                    else
-                    {
+                    } else {
                         $("#change-username-error").html(result.message).show();
                     }
                 }
             });
-        }
-        else
-        {
+        } else {
             $("#username-view").show();
             $("#edit-username-form").hide();
             $("#change-username-error").hide();
@@ -165,41 +158,34 @@ function languagecodetotext()
     $(".email").html(list.data['email']);
     $("#input-email").val(list.data['email']);
 
-    $("#edit-email").click(function(){
+    $("#edit-email").click(function() {
         $("#email-view").hide();
         $("#edit-email-form").show();
         $("#edit-email-form input").val(list.data.email);
     });
 
-    $("#edit-email-form button").click(function(){
+    $("#edit-email-form button").click(function() {
 
         var email = $("#edit-email-form input").val();
 
-        if (email!=list.data.email)
-        {
+        if (email != list.data.email) {
             $.ajax({
-                url: path+"user/changeemail.json",
-                data: "&email="+email,
+                url: path + "user/changeemail.json",
+                data: "&email=" + email,
                 dataType: 'json',
-                success: function(result)
-                {
-                    if (result.success)
-                    {
+                success: function(result) {
+                    if (result.success) {
                         $("#email-view").show();
                         $("#edit-email-form").hide();
                         list.data.email = email;
                         $(".email").html(list.data.email);
                         $("#change-email-error").hide();
-                    }
-                    else
-                    {
+                    } else {
                         $("#change-email-error").html(result.message).show();
                     }
                 }
             });
-        }
-        else
-        {
+        } else {
             $("#email-view").show();
             $("#edit-email-form").hide();
             $("#change-email-error").hide();
@@ -220,20 +206,15 @@ function languagecodetotext()
         var newpassword = $("#newpassword").val();
         var repeatnewpassword = $("#repeatnewpassword").val();
 
-        if (newpassword != repeatnewpassword)
-        {
+        if (newpassword != repeatnewpassword) {
             $("#change-password-error").html("<?php echo _('Passwords do not match'); ?>").show();
-        }
-        else
-        {
+        } else {
             $.ajax({
                 url: path+"user/changepassword.json",
                 data: "old="+oldpassword+"&new="+newpassword,
                 dataType: 'json',
-                success: function(result)
-                {
-                    if (result.success)
-                    {
+                success: function(result) {
+                    if (result.success) {
                         $("#oldpassword").val('');
                         $("#newpassword").val('');
                         $("#repeatnewpassword").val('');
@@ -241,9 +222,7 @@ function languagecodetotext()
 
                         $("#change-password-form").hide();
                         $("#changedetails").show();
-                    }
-                    else
-                    {
+                    } else {
                         $("#change-password-error").html(result.message).show();
                     }
                 }
@@ -260,6 +239,4 @@ function languagecodetotext()
         $("#change-password-form").hide();
         $("#changedetails").show();
     });
-
-
 </script>

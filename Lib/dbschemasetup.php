@@ -15,56 +15,68 @@
 // no direct access
 defined('EMONCMS_EXEC') or die('Restricted access');
 
-if (!db_check($mysqli,$database)) {
-    db_schema_setup($mysqli,load_db_schema(),true);
+if (!db_check($mysqli, $database)) {
+    db_schema_setup($mysqli, load_db_schema(), true);
 }
 
-function db_schema_setup($mysqli, $schema, $apply)
-{
+function db_schema_setup($mysqli, $schema, $apply) {
     $operations = array();
-    while ($table = key($schema))
-    { 
+    while ($table = key($schema)) {
         // if table exists:
-        $result = $mysqli->query("SHOW TABLES LIKE '".$table."'");
-        if (($result != null ) && ($result->num_rows==1))
-        {
+        $result = $mysqli->query(sprintf('SHOW TABLES LIKE "%s"', $table));
+        if ($result != null  && $result->num_rows == 1) {
             // $out[] = array('Table',$table,"ok");
             //-----------------------------------------------------
             // Check table fields from schema
             //-----------------------------------------------------
-            while ($field = key($schema[$table]))
-            { 
-                $type = $schema[$table][$field]['type'];
-                if (isset($schema[$table][$field]['Null'])) $null = $schema[$table][$field]['Null']; else $null = "YES";
-                if (isset($schema[$table][$field]['Key'])) $key = $schema[$table][$field]['Key']; else $key = null;
-                if (isset($schema[$table][$field]['default'])) $default = $schema[$table][$field]['default']; else unset($default);
-                if (isset($schema[$table][$field]['Extra'])) $extra = $schema[$table][$field]['Extra']; else $extra = null;
+            while ($field = key($schema[$table])) {
+                extract(schema_extract($schema[$table][$field]), EXTR_OVERWRITE);
+                if ($default === null) {
+                    unset($default);
+                }
 
                 // if field exists:
-                $result = $mysqli->query("SHOW COLUMNS FROM `$table` LIKE '$field'");
-                if ($result->num_rows==0)
-                {
-                    $query = "ALTER TABLE `$table` ADD `$field` $type";
-                    if ($null) $query .= " NOT NULL";
-                    if (isset($default)) $query .= " DEFAULT '$default'";
+                $result = $mysqli->query(sprintf('SHOW COLUMNS FROM `%s` LIKE "%s"', $table, $field));
+                if ($result->num_rows == 0) {
+                    $query = sprintf('ALTER TABLE `%s` ADD `%s` %s', $table, $field, $type);
+                    if ($null) {
+                        $query .= ' NOT NULL';
+                    }
+                    if (isset($default)) {
+                        $query .= sprintf(' DEFAULT "%s"', $default);
+                    }
                     $operations[] = $query;
-                    if ($apply) $mysqli->query($query);
-                }
-                else
-                {
-                  $result = $mysqli->query("DESCRIBE $table `$field`");
-                  $array = $result->fetch_array();
-                  $query = "";
-                  
-                  if ($array['Type']!=$type) $query .= ";";
-                  if (isset($default) && $array['Default']!=$default) $query .= " Default '$default'";
-                  if ($array['Null']!=$null && $null=="NO") $query .= " not null";
-                  if ($array['Extra']!=$extra && $extra=="auto_increment") $query .= " auto_increment";
-                  if ($array['Key']!=$key && $key=="PRI") $query .= " primary key";
+                    if ($apply) {
+                        $mysqli->query($query);
+                    }
+                } else {
+                    $result = $mysqli->query(sprintf('DESCRIBE %s `%s`', $table, $field));
+                    $array = $result->fetch_array();
+                    $query = '';
 
-                  if ($query) $query = "ALTER TABLE $table MODIFY `$field` $type".$query;
-                  if ($query) $operations[] = $query;
-                  if ($query && $apply) $mysqli->query($query);
+                    if ($array['Type'] != $type) {
+                        $query .= ';';
+                    }
+                    if (isset($default) && $array['Default'] != $default) {
+                        $query .= sprintf(' Default "%s"', $default);
+                    }
+                    if ($array['Null'] != $null && $null == 'NO') {
+                        $query .= ' not null';
+                    }
+                    if ($array['Extra'] != $extra && $extra == 'auto_increment') {
+                        $query .= ' auto_increment';
+                    }
+                    if ($array['Key'] != $key && $key == 'PRI') {
+                        $query .= ' primary key';
+                    }
+
+                    if ($query) {
+                        $query = "ALTER TABLE $table MODIFY `$field` $type".$query;
+                        $operations[] = $query;
+                        if ($apply) {
+                            $mysqli->query($query);
+                        }
+                    }
                 } 
 
                 next($schema[$table]);
@@ -73,35 +85,55 @@ function db_schema_setup($mysqli, $schema, $apply)
             //-----------------------------------------------------
             // Create table from schema
             //-----------------------------------------------------
-            $query = "CREATE TABLE " . $table . " (";
-            while ($field = key($schema[$table]))
-            {
-                $type = $schema[$table][$field]['type'];
+            $inner = '';
+            while ($field = key($schema[$table])) {
+                extract(schema_extract($schema[$table][$field]), EXTR_OVERWRITE);
 
-                if (isset($schema[$table][$field]['Null'])) $null = $schema[$table][$field]['Null']; else $null = "YES";
-                if (isset($schema[$table][$field]['Key'])) $key = $schema[$table][$field]['Key']; else $key = null;
-                if (isset($schema[$table][$field]['default'])) $default = $schema[$table][$field]['default']; else $default = null;
-                if (isset($schema[$table][$field]['Extra'])) $extra = $schema[$table][$field]['Extra']; else $extra = null;
-
-                $query .= '`'.$field.'`';
-                $query .= " $type";
-                if ($default) $query .= " Default '$default'";
-                if ($null=="NO") $query .= " not null";
-                if ($extra) $query .= " auto_increment";
-                if ($key) $query .= " primary key";
+                $inner .= sprintf('`%s` %s', $field, $type);
+                if ($default) {
+                    $inner .= sprintf(' Default %s', $default);
+                }
+                if ($null == 'NO') {
+                    $inner .= ' not null';
+                }
+                if ($extra) {
+                    $inner .= ' auto_increment';
+                }
+                if ($key) {
+                    $inner .= ' primary key';
+                }
 
                 next($schema[$table]);
-                if (key($schema[$table]))
-                {
-                  $query .= ", ";
+                if (key($schema[$table])) {
+                    $inner .= ', ';
                 }
             }
-            $query .= ")";
-            $query .= " ENGINE=MYISAM";
-            if ($query) $operations[] = $query;
-            if ($query && $apply) $mysqli->query($query);
+            if ($inner) {
+                $query = sprintf('CREATE TABLE %s (%s) ENGINE=MYISAM', $table, $inner);
+                $operations[] = $query;
+                if ($apply) {
+                    $mysqli->query($query);
+                }
+            }
         }
         next($schema);
     }
     return $operations;
+}
+
+/**
+ * extract the details of the schema
+ *
+ * @param array $field the field details
+ *
+ * @return array
+ */
+function schema_extract($field) {
+    return array(
+        'type' => $field['type'],
+        'null' => isset($field['Null']) ? $field['Null'] : 'YES',
+        'key' => isset($field['Key']) ? $field['Key'] : null,
+        'default' => isset($field['default']) ? $field['default'] : null,
+        'extra' => isset($field['Extra']) ? $field['Extra'] : null,
+    );
 }
